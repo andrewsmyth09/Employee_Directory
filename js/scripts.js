@@ -2,6 +2,7 @@
 
 const searchContainer = document.querySelector(".search-container");
 const gallery = document.querySelector("#gallery");
+let cardStack;
 
 /* HELPER FUNCTIONS */
 
@@ -16,7 +17,9 @@ async function fetchAPI(url) {
   } catch (error) {
     console.error(error);
   }
-}
+};
+
+const collectCards = () => document.querySelectorAll('.card');
 
 async function getUsers() {
   const users = await fetchAPI("https://randomuser.me/api?results=12");
@@ -26,7 +29,6 @@ async function getUsers() {
 }
 
 function displayInfo(firstName, lastName, email, city, country, picture) {
-    const employeeCard = [];
     const cards = `
           <div class="card">
               <div class="card-img-container">
@@ -40,11 +42,8 @@ function displayInfo(firstName, lastName, email, city, country, picture) {
           </div>
       `;
         gallery.insertAdjacentHTML("beforeend", cards);
-        employeeCard.push(document.querySelector('.card'));
-        employeeCard.forEach(item => {
-            console.log(item) // Retains the same card each time...
-        });
+        cardStack = collectCards();
+       
 }
 
 getUsers();
-

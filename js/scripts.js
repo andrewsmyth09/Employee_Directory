@@ -2,7 +2,7 @@
 
 const searchContainer = document.querySelector(".search-container");
 const gallery = document.querySelector("#gallery");
-let cardStack;
+let usersData = [];
 
 /* HELPER FUNCTIONS */
 
@@ -19,11 +19,9 @@ async function fetchAPI(url) {
   }
 }
 
-const collectCards = () => document.querySelectorAll(".card");
-
 const setBirthday = date => {
   const birthday = new Date(date);
-  return `${birthday.getMonth()}/${birthday.getDate()}/${birthday.getYear()}`;
+  return `${birthday.getMonth() + 1}/${birthday.getDate()}/${birthday.getFullYear()}`;
 }
 
 /* END OF HELPER FUNCTIONS */
@@ -31,80 +29,68 @@ const setBirthday = date => {
 async function getUsers() {
   const users = await fetchAPI("https://randomuser.me/api?results=12");
   if (users && users.results) {
-    users.results.forEach((user) => {
+    usersData = users.results; // Store the users data for later use
+    users.results.forEach((user, index) => {
       displayInfo(
         user.name.first,
         user.name.last,
         user.email,
         user.location.city,
         user.location.country,
-        user.picture.thumbnail
-      );
-
-      displayModal(
-        user.picture.medium,
-        user.name.first,
-        user.name.last,
-        user.email,
-        user.location.city,
-        user.cell,
-        user.location.street.name,
-        user.location.street.number,
-        user.location.country,
-        user.location.postcode,
-        setBirthday(user.dob.date)
+        user.picture.thumbnail,
+        index // Pass the index to displayInfo
       );
     });
   }
 }
 
-function displayInfo(firstName, lastName, email, city, country, picture) {
-  const cards = `
-          <div class="card">
-              <div class="card-img-container">
-                  <img class="card-img" src="${picture}" alt="profile picture">
-              </div>
-              <div class="card-info-container">
-                  <h3 id="name" class="card-name cap">${firstName} ${lastName}</h3>
-                  <p class="card-text">${email}</p>
-                  <p class="card-text cap">${city}, ${country}</p>
-              </div>
-          </div>
-      `;
-  gallery.insertAdjacentHTML("beforeend", cards);
-  cardStack = collectCards();
+function displayInfo(firstName, lastName, email, city, country, picture, index) {
+  const card = `
+    <div class="card" data-index="${index}">
+      <div class="card-img-container">
+        <img class="card-img" src="${picture}" alt="profile picture">
+      </div>
+      <div class="card-info-container">
+        <h3 id="name" class="card-name cap">${firstName} ${lastName}</h3>
+        <p class="card-text">${email}</p>
+        <p class="card-text cap">${city}, ${country}</p>
+      </div>
+    </div>
+  `;
+  gallery.insertAdjacentHTML("beforeend", card);
+
+  // Add click event listener to each card
+  document.querySelector(`.card[data-index="${index}"]`).addEventListener('click', () => {
+    displayModal(index);
+  });
 }
 
-function displayModal(
-  image,
-  firstName,
-  lastName,
-  email,
-  city,
-  cell,
-  street,
-  streetNumber,
-  country,
-  postcode,
-  birthday
-) {
-  const modal = `
-  <div class="modal-container">
-                <div class="modal">
-                    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-                    <div class="modal-info-container">
-                        <img class="modal-img" src="${image}" alt="profile picture">
-                        <h3 id="name" class="modal-name cap">${firstName} ${lastName}</h3>
-                        <p class="modal-text">${email}</p>
-                        <p class="modal-text cap">${city}</p>
-                        <hr>
-                        <p class="modal-text">${cell}</p>
-                        <p class="modal-text">${streetNumber} ${street}, ${city}, ${country}, ${postcode}</p>
-                        <p class="modal-text">Birthday: ${birthday}</p>
-                    </div>
-                </div>
+function displayModal(index) {
+  const user = usersData[index]; // Retrieve the user data using the index
+  const modalHTML = `
+    <div class="modal-container">
+      <div class="modal">
+        <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+        <div class="modal-info-container">
+          <img class="modal-img" src="${user.picture.medium}" alt="profile picture">
+          <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
+          <p class="modal-text">${user.email}</p>
+          <p class="modal-text cap">${user.location.city}</p>
+          <hr>
+          <p class="modal-text">${user.cell}</p>
+          <p class="modal-text">${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.country}, ${user.location.postcode}</p>
+          <p class="modal-text">Birthday: ${setBirthday(user.dob.date)}</p>
+        </div>
+      </div>
+    </div>
   `;
-  gallery.insertAdjacentHTML("beforeend", modal);
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+  document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+}
+
+function closeModal() {
+  const modalContainer = document.querySelector('.modal-container');
+  modalContainer.remove();
 }
 
 getUsers();

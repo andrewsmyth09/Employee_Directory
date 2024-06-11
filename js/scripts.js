@@ -6,7 +6,12 @@ let usersData = [];
 
 /* HELPER FUNCTIONS */
 
-/* */
+/**
+ * Fetches data from an API.
+ * @param {string} url Retrieves the url of a fetch API call.
+ * @returns {Promise<any>} Resolves and parses the API reponse or rejects it with an error message.
+ *  
+ **/
 
 async function fetchAPI(url) {
   try {
@@ -21,12 +26,26 @@ async function fetchAPI(url) {
   }
 }
 
+/**
+ * Sets the date format as month/day/year.
+ * @param {Date} date Retrieves the date object from API.
+ * @returns {string} Returns the formatted date.
+ *  
+ **/
+
 const setBirthday = date => {
   const birthday = new Date(date);
   return `${birthday.getMonth() + 1}/${birthday.getDate()}/${birthday.getFullYear()}`;
 }
 
 /* END OF HELPER FUNCTIONS */
+
+/**
+ * Retrieves user API data.
+ * Sends the data and an index number the displayInfo function.
+ *
+ * @async
+ */
 
 async function getUsers() {
   const users = await fetchAPI("https://randomuser.me/api?results=12");
@@ -36,6 +55,12 @@ async function getUsers() {
     };
   };
 
+/**
+ * Creates and displays a user card from the user data.
+ * 
+ * @param {Object} user Contains the user information to display.
+ * @param {number} index The index number of the user in the data set.
+ */
 function displayInfo(user, index) {
   const card = `
     <div class="card" data-index="${index}">
@@ -54,10 +79,17 @@ function displayInfo(user, index) {
   document.querySelector(`.card[data-index="${index}"]`).addEventListener('click', () => {
     displayModal(index);
   });
-}
+};
+
+/**
+ * Displays a modal with more detailed user information.
+ * Uses the index number to identify the correct user data to display.
+ * 
+ * @param {number} index The user index number from the `usersData` array.
+ */
 
 function displayModal(index) {
-  const user = usersData[index]; // Retrieve the user data using the index
+  const user = usersData[index];
   const modal = `
     <div class="modal-container">
       <div class="modal">
@@ -77,11 +109,15 @@ function displayModal(index) {
   `;
   document.body.insertAdjacentHTML("beforeend", modal);
   document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-}
+};
+
+/**
+ * Removes the modal.
+ */
 
 function closeModal() {
   const modalContainer = document.querySelector('.modal-container');
   modalContainer.remove();
-}
+};
 
 getUsers();

@@ -6,6 +6,8 @@ let usersData = [];
 
 /* HELPER FUNCTIONS */
 
+/* */
+
 async function fetchAPI(url) {
   try {
     const response = await fetch(url);
@@ -29,37 +31,26 @@ const setBirthday = date => {
 async function getUsers() {
   const users = await fetchAPI("https://randomuser.me/api?results=12");
   if (users && users.results) {
-    usersData = users.results; // Store the users data for later use
-    users.results.forEach((user, index) => {
-      displayInfo(
-        user.name.first,
-        user.name.last,
-        user.email,
-        user.location.city,
-        user.location.country,
-        user.picture.thumbnail,
-        index // Pass the index to displayInfo
-      );
-    });
-  }
-}
+    usersData = users.results; 
+    users.results.forEach((user, index) => displayInfo(user,index));
+    };
+  };
 
-function displayInfo(firstName, lastName, email, city, country, picture, index) {
+function displayInfo(user, index) {
   const card = `
     <div class="card" data-index="${index}">
       <div class="card-img-container">
-        <img class="card-img" src="${picture}" alt="profile picture">
+        <img class="card-img" src="${user.picture.thumbnail}" alt="profile picture">
       </div>
       <div class="card-info-container">
-        <h3 id="name" class="card-name cap">${firstName} ${lastName}</h3>
-        <p class="card-text">${email}</p>
-        <p class="card-text cap">${city}, ${country}</p>
+        <h3 id="name" class="card-name cap">${user.name.first} ${user.name.last}</h3>
+        <p class="card-text">${user.email}</p>
+        <p class="card-text cap">${user.location.city}, ${user.location.country}</p>
       </div>
     </div>
   `;
   gallery.insertAdjacentHTML("beforeend", card);
 
-  // Add click event listener to each card
   document.querySelector(`.card[data-index="${index}"]`).addEventListener('click', () => {
     displayModal(index);
   });
@@ -67,7 +58,7 @@ function displayInfo(firstName, lastName, email, city, country, picture, index) 
 
 function displayModal(index) {
   const user = usersData[index]; // Retrieve the user data using the index
-  const modalHTML = `
+  const modal = `
     <div class="modal-container">
       <div class="modal">
         <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
@@ -84,7 +75,7 @@ function displayModal(index) {
       </div>
     </div>
   `;
-  document.body.insertAdjacentHTML("beforeend", modalHTML);
+  document.body.insertAdjacentHTML("beforeend", modal);
   document.getElementById('modal-close-btn').addEventListener('click', closeModal);
 }
 

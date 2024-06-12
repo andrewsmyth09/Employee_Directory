@@ -40,15 +40,32 @@ const setBirthday = (date) => {
   }/${birthday.getDate()}/${birthday.getFullYear()}`;
 };
 
-const modalToggle = (limit, newIndex, operator) => {
+/**
+ * Toggles between different modals based on the current index, limit, and operator.
+ * @param {number} maxIndex The maximum index value.
+ * @param {number} newIndex The new index value.
+ * @param {string} operator The operator ('+' or '-') to determine the direction of toggle.
+ * @param {number} currentIndex The current index value.
+ */
+
+const modalToggle = (maxIndex, newIndex, operator, currentIndex) => {
   closeModal();
-      if(index === limit) {
-        displayModal(newIndex);
-      } else if(operator === '+') {
-        displayModal(index + 1);
-      } else {
-        displayModal(index - 1);
-      }
+  if (currentIndex === maxIndex) {
+    displayModal(newIndex);
+  } else if (operator === "+") {
+    displayModal(currentIndex + 1);
+  } else {
+    displayModal(currentIndex - 1);
+  }
+};
+
+/**
+ * Removes the modal.
+ */
+
+function closeModal() {
+  const modalContainer = document.querySelector(".modal-container");
+  modalContainer.remove();
 }
 
 /* END OF HELPER FUNCTIONS */
@@ -83,9 +100,15 @@ function displayInfo(user, index) {
         <img class="card-img" src="${user.picture.thumbnail}" alt="profile picture">
       </div>
       <div class="card-info-container">
-        <h3 id="name" class="card-name cap">${user.name.first} ${user.name.last}</h3>
+        <h3 id="name" class="card-name cap">
+        ${user.name.first} 
+        ${user.name.last}
+        </h3>
         <p class="card-text">${user.email}</p>
-        <p class="card-text cap">${user.location.city}, ${user.location.country}</p>
+        <p class="card-text cap">
+        ${user.location.city}, 
+        ${user.location.country}
+        </p>
       </div>
     </div>
   `;
@@ -113,21 +136,22 @@ function displayModal(index) {
       <div class="modal">
         <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
         <div class="modal-info-container">
-          <img class="modal-img" src="${
-            user.picture.medium
-          }" alt="profile picture">
-          <h3 id="name" class="modal-name cap">${user.name.first} ${
-    user.name.last
-  }</h3>
+          <img class="modal-img" src="${user.picture.medium}" alt="profile picture">
+          <h3 id="name" class="modal-name cap">
+          ${user.name.first} 
+          ${user.name.last}
+          </h3>
           <p class="modal-text">${user.email}</p>
           <p class="modal-text cap">${user.location.city}</p>
           <hr>
           <p class="modal-text">${user.cell}</p>
-          <p class="modal-text">${user.location.street.number} ${
-    user.location.street.name
-  }, ${user.location.city}, ${user.location.country}, ${
-    user.location.postcode
-  }</p>
+          <p class="modal-text">
+          ${user.location.street.number} 
+          ${user.location.street.name}, 
+          ${user.location.city}, 
+          ${user.location.country}, 
+          ${user.location.postcode}
+          </p>
           <p class="modal-text">Birthday: ${setBirthday(user.dob.date)}</p>
 
           <div class="modal-btn-container">
@@ -143,42 +167,38 @@ function displayModal(index) {
     .getElementById("modal-close-btn")
     .addEventListener("click", closeModal);
 
+  function handleNextClick() {
+    modalToggle(11, 0, "+", index);
+  }
+
+  function handlePrevClick() {
+    modalToggle(0, 11, "-", index);
+  }
+
   document
     .getElementById("modal-next")
-    .addEventListener('click', () => {
-      closeModal();
-      if(index === 11) {
-        displayModal(0);
-      } else {
-        displayModal(index + 1);
-      };
-    });
+    .addEventListener("click", handleNextClick);
 
-    document
+  document
     .getElementById("modal-prev")
-    .addEventListener('click', () => {
-      if(index === 0) {
+    .addEventListener("click", handlePrevClick);
+
+  document.addEventListener("keydown", (event) => {
+      const modalContainer = document.querySelector(".modal-container");
+      if(event.key === 'Escape' && modalContainer) {
         closeModal();
-        displayModal(11);
-      } else {
-        closeModal();
-        displayModal(index - 1);
       };
     });
-}
-
-/**
- * Removes the modal.
- */
-
-function closeModal() {
-  const modalContainer = document.querySelector(".modal-container");
-  modalContainer.remove();
-}
+};
 
 getUsers();
 
-// EXCEEDS EXPECTATIONS TASKS
+/* EXCEEDS EXPECTATIONS TASKS */
+
+/**
+ * Search form for the search container.
+ * Form filters the user data and displays matching results.
+ */
 
 const form = `
     <form action="#" method="get">
@@ -188,9 +208,10 @@ const form = `
 `;
 
 searchContainer.innerHTML = form;
-const searchBox = document.getElementById("search-input");
+const searchForm = document.querySelector("form");
 
-searchBox.addEventListener("keyup", (event) => {
+searchForm.addEventListener("keyup", (event) => {
+  event.preventDefault();
   const userInput = event.target.value;
   gallery.innerHTML = "";
 
